@@ -75,18 +75,27 @@ This handles Prisma generation, builds the TypeScript code, and spins up an isol
 
 The full working API suite details are available via the included [**Postman Collection**](./zorvyn.postman_collection.json).
 
-### Summary of Core Endpoints:
+### Complete Endpoints Cheat-Sheet:
 
-| Category | Endpoint | Method | Role Required |
-| :--- | :--- | :--- | :--- |
-| **Auth** | `/api/auth/register` | POST | Public |
-| **Auth** | `/api/auth/login` | POST | Public |
-| **Records** | `/api/records` | GET | All Authenticated |
-| **Records** | `/api/records` | POST | ADMIN |
-| **Dashboard** | `/api/dashboard/summary` | GET | All Authenticated |
-| **Dashboard** | `/api/dashboard/categories` | GET | All Authenticated |
-| **Admin** | `/api/users` | GET | ADMIN |
-| **Admin** | `/api/users/:id/status` | PATCH | ADMIN |
+| Category | Endpoint | Method | Role Required | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| **Auth** | `/api/auth/register` | POST | Public | Creates a new user (Default Viewer) |
+| **Auth** | `/api/auth/login` | POST | Public | Authenticates and delivers session cookie |
+| **Auth** | `/api/auth/logout` | POST | All Authenticated | Clears the session entirely |
+| **Auth** | `/api/auth/me` | GET | All Authenticated | Returns current user profile |
+| **Records** | `/api/records` | GET | ADMIN, ANALYST | Fetch paginated & filtered transactions |
+| **Records** | `/api/records` | POST | ADMIN | Create a new financial record |
+| **Records** | `/api/records/:id` | PUT | ADMIN | Update an existing record |
+| **Records** | `/api/records/:id` | DELETE | ADMIN | Soft-delete a record |
+| **Dashboard** | `/api/dashboard/summary` | GET | All Authenticated | Returns total balance, income, expense |
+| **Dashboard** | `/api/dashboard/categories`| GET | All Authenticated | Grouped spending pattern analysis |
+| **Dashboard** | `/api/dashboard/trends` | GET | All Authenticated | Monthly cashflow analytical trends |
+| **Dashboard** | `/api/dashboard/recent` | GET | All Authenticated | Most recent 5 transactions |
+| **Admin** | `/api/users` | GET | ADMIN | View all registered accounts |
+| **Admin** | `/api/users/:id/status` | PATCH | ADMIN | Suspend or Activate (ACTIVE/INACTIVE) |
+| **Admin** | `/api/users/:id/role` | PATCH | ADMIN | Promote or Demote via RBAC assignment |
+| **System** | `/health` | GET | Public | Server uptime and health-check ping |
+| **System** | `/` | GET | Public | Root welcome message |
 
 ---
 
