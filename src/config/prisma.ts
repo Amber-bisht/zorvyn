@@ -1,10 +1,12 @@
+import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { pool } from "./db.config.js";
 
-// Bhai, ye prisma client setup hai 
-// Pure app me yahi client use karenge hum database se baat karne ke liye
-// amber bisht - 5:25 1 april
+// prisma client setup with standard PG adapter
 const prismaClientSingleton = () => {
-  return new PrismaClient();
+  const adapter = new PrismaPg(pool as any);
+  return new PrismaClient({ adapter });
 };
 
 type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>;
