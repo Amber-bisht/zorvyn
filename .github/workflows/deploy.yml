@@ -71,7 +71,10 @@ jobs:
             # Stop old containers
             docker compose down
             
-            # Pull the latest image built by GHCR (Assuming public package or VPS is auth'd)
+            # Login to GHCR to allow pulling of private images without "denied: denied" error
+            echo "$GITHUB_TOKEN" | docker login ghcr.io -u Amber-bisht --password-stdin
+            
+            # Pull the latest image built by GHCR
             docker compose pull
             
             # Start up
