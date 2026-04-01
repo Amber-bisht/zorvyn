@@ -17,6 +17,7 @@ import RedisStore from "rate-limit-redis";
 import { redisClient } from "./config/redis.config.js";
 
 const app = express();
+app.set("trust proxy", 1); // Absolutely essential for cookies behind proxies like Nginx/Cloudflare
 const PostgresStore = pgSession(session);
 
 // Security and utility Middlewares
