@@ -3,6 +3,7 @@ import express from "express";
 import session from "express-session";
 import pgSession from "connect-pg-simple";
 import authRoutes from "./routes/auth.routes.js";
+import recordRoutes from "./routes/record.routes.js";
 import { pool } from "./config/db.config.js";
 import prisma from "./config/prisma.js";
 
@@ -34,6 +35,7 @@ app.use(
 
 // Auth routes mount
 app.use("/api/auth", authRoutes);
+app.use("/api/records", recordRoutes);
 
 const PORT = process.env.PORT || 3000;
 
