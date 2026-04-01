@@ -12,26 +12,32 @@ jobs:
     steps:
       - name: Deploying via SSH
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          # Automatically provided by GitHub Actions for cloning
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Securely pass the .env content
+          PROD_ENV: ${{ secrets.PROD_ENV }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
-          # Fallback to password if VPS_KEY isn't there
           key: ${{ secrets.VPS_KEY }}
           password: ${{ secrets.VPS_PASSWORD }}
+          envs: GITHUB_TOKEN,PROD_ENV
           script: |
-            # Navigate to the assignment folder (change the path as necessary)
-            cd ~/assignment || mkdir -p ~/assignment && cd ~/assignment
+            # Safely create directory and enter it
+            mkdir -p ~/assignment
+            cd ~/assignment
             
-            # Since git pull might require cloning initially, this assumes we are updating an existing cloned repo
+            # Use ephemeral GITHUB_TOKEN to bypass "Username/Password" prompts
             if [ -d ".git" ]; then
+              git remote set-url origin https://oauth2:$GITHUB_TOKEN@github.com/Amber-bisht/zorvyn.git
               git pull origin main
             else
-              # If for some reason it's an empty folder, this falls back. Change the URL to yours!
-              git clone https://github.com/Amber-bisht/Zorvyn-Assignment.git .
+              git clone https://oauth2:$GITHUB_TOKEN@github.com/Amber-bisht/zorvyn.git .
             fi
 
-            # Using PROD_ENV secret to generate production .env file
-            echo "${{ secrets.PROD_ENV }}" > .env
+            # Safely write the production environment variables
+            echo "$PROD_ENV" > .env
             
             # Restart docker containers detached mode, forcing build
             docker compose down
