@@ -11,7 +11,7 @@ import { UserRole } from "@prisma/client";
 
 const router = express.Router();
 
-router.get("/", isAuthenticated, getRecords);
+router.get("/", isAuthenticated, checkRole([UserRole.ADMIN, UserRole.ANALYST]), getRecords);
 router.post("/", isAuthenticated, checkRole([UserRole.ADMIN]), createRecord);
 router.put("/:id", isAuthenticated, checkRole([UserRole.ADMIN]), updateRecord);
 router.delete("/:id", isAuthenticated, checkRole([UserRole.ADMIN]), deleteRecord);

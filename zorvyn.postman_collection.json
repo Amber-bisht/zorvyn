@@ -367,6 +367,41 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "update user role",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"role\": \"ANALYST\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/users/:id/role",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                ":id",
+                "role"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "user_id_here"
+                }
+              ]
+            }
+          },
+          "response": []
         }
       ]
     }

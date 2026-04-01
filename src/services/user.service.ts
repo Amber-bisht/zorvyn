@@ -1,5 +1,5 @@
 import prisma from "../config/prisma.js";
-import { UserStatus } from "@prisma/client";
+import { UserStatus, UserRole } from "@prisma/client";
 
 // User Administration Service
 
@@ -25,6 +25,15 @@ export class UserService {
       where: { id },
       data: { status },
       select: { id: true, email: true, status: true },
+    });
+  }
+
+  // Update Role
+  static async updateRole(id: string, role: UserRole) {
+    return prisma.user.update({
+      where: { id },
+      data: { role },
+      select: { id: true, email: true, role: true },
     });
   }
 }
