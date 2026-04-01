@@ -1,21 +1,48 @@
-name: Deploy Backend to VPS Using Docker
+name: Build and Deploy (GHCR to VPS)
 
 on:
   push:
     branches:
       - main
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: amber-bisht/zorvyn
 
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+  deploy-to-vps:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    
     steps:
       - name: Deploying via SSH
         uses: appleboy/ssh-action@v1.0.3
         env:
-          # Automatically provided by GitHub Actions for cloning
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Securely pass the .env content
           PROD_ENV: ${{ secrets.PROD_ENV }}
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -24,21 +51,28 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           envs: GITHUB_TOKEN,PROD_ENV
           script: |
-            # Safely create directory and enter it
             mkdir -p ~/assignment
             cd ~/assignment
             
-            # Use ephemeral GITHUB_TOKEN to bypass "Username/Password" prompts
-            if [ -d ".git" ]; then
-              git remote set-url origin https://oauth2:$GITHUB_TOKEN@github.com/Amber-bisht/zorvyn.git
-              git pull origin main
-            else
-              git clone https://oauth2:$GITHUB_TOKEN@github.com/Amber-bisht/zorvyn.git .
+            # Robust Git Pull
+            if [ ! -d ".git" ]; then
+              git init
+              git branch -M main
             fi
+            
+            git remote remove origin || true
+            git remote add origin https://oauth2:$GITHUB_TOKEN@github.com/Amber-bisht/zorvyn.git
+            git fetch origin main
+            git reset --hard origin/main
 
-            # Safely write the production environment variables
+            # Write environment variables
             echo "$PROD_ENV" > .env
             
-            # Restart docker containers detached mode, forcing build
+            # Stop old containers
             docker compose down
-            docker compose up -d --build
+            
+            # Pull the latest image built by GHCR (Assuming public package or VPS is auth'd)
+            docker compose pull
+            
+            # Start up
+            docker compose up -d
