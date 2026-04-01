@@ -404,6 +404,45 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "system",
+      "item": [
+        {
+          "name": "health ping",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseurl}}/health",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "welcome root",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseurl}}/",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "event": [
