@@ -100,7 +100,7 @@ The full working API suite details are available via the included [**Postman Col
 ---
 To Create Admin
 
-UPDATE "User"
+UPDATE users
 SET role = 'ADMIN'
 WHERE email = 'bishtamber0@gmail.com';
 
