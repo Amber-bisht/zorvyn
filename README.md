@@ -98,6 +98,14 @@ The full working API suite details are available via the included [**Postman Col
 - **Internal Redis Component**: The caching/spam-protection database intentionally omits host port maps, restricting network access entirely to the Docker ecosystem to avert conflicts.
 
 ---
+To Create Admin
+
+UPDATE "User"
+SET role = 'ADMIN'
+WHERE email = 'bishtamber0@gmail.com';
+
+
+
 
 ## 👨‍💻 Author
 
