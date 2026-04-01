@@ -1,65 +1,56 @@
 import { Request, Response } from "express";
-import prisma from "../config/prisma.js";
+import { RecordService } from "../services/record.service.js";
 import { recordSchema, updateRecordSchema } from "../validators/record.validator.js";
+import { sendSuccess, sendError } from "../utils/apiResponse.js";
+import { RecordType } from "@prisma/client";
 
-// Finance Records logic here Incomes aur Expenses)
+// Record CRUD handler - Business logic in RecordService
 
-// Get all records (with filtering)
+// Get all records (with filtering and pagination)
 export const getRecords = async (req: Request, res: Response) => {
   try {
-    const { type, category, startDate, endDate, sortBy, order } = req.query;
+    const { type, category, startDate, endDate, sortBy, order, page = 1, limit = 10 } = req.query;
 
-    // Filtration object
-    const filter: any = {};
-    if (type) filter.type = type as 'INCOME' | 'EXPENSE';
-    if (category) filter.category = category as string;
-
-    // Date range filtering
-    if (startDate || endDate) {
-      filter.date = {};
-      if (startDate) filter.date.gte = new Date(startDate as string);
-      if (endDate) filter.date.lte = new Date(endDate as string);
-    }
-
-    // Records fetch logic
-    const records = await prisma.record.findMany({
-      where: filter,
-      include: {
-        user: {
-          select: { name: true, email: true }
-        }
-      },
-      orderBy: {
-        [sortBy ? (sortBy as string) : 'date']: order ? (order as string) : 'desc'
-      }
+    const result = await RecordService.getAll({
+      type: type as RecordType,
+      category: category as string,
+      startDate: startDate as string,
+      endDate: endDate as string,
+      sortBy: sortBy as string,
+      order: order as "asc" | "desc",
+      page: Number(page),
+      limit: Number(limit),
     });
 
-    res.json(records);
+    return sendSuccess(res, "Records fetched successfully", {
+      meta: {
+        total: result.total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(result.total / Number(limit)),
+      },
+      data: result.records,
+    });
   } catch (error: any) {
-    res.status(500).json({ message: "Records fetch error - Unable to fetch records", error: error.message });
+    return sendError(res, "Unable to fetch records", error, 500);
   }
 };
 
-// Create New Record (ADMIN Only via Routes)
+// Create New Record
 export const createRecord = async (req: Request, res: Response) => {
   try {
     const validatedData = recordSchema.parse(req.body);
-    const userId = req.session.user!.id; // Authenticated user ID
+    const userId = req.session.user!.id;
 
-    const record = await prisma.record.create({
-      data: {
-        amount: validatedData.amount,
-        type: validatedData.type,
-        category: validatedData.category,
-        description: validatedData.description,
-        date: validatedData.date ? new Date(validatedData.date) : new Date(),
-        userId,
-      },
+    const record = await RecordService.create({
+      ...validatedData,
+      type: validatedData.type as RecordType,
+      userId,
     });
 
-    res.status(201).json({ message: "New record saved successfully!", record });
+    return sendSuccess(res, "New record saved successfully!", record, 201);
   } catch (error: any) {
-    res.status(400).json({ message: "Creation failed", error: error.message || error });
+    return sendError(res, "Record creation failed", error);
   }
 };
 
@@ -69,31 +60,21 @@ export const updateRecord = async (req: Request, res: Response) => {
     const { id } = req.params;
     const validatedData = updateRecordSchema.parse(req.body);
 
-    const updatedRecord = await prisma.record.update({
-      where: { id: id as string },
-      data: {
-        ...validatedData,
-        date: validatedData.date ? new Date(validatedData.date) : undefined,
-      },
-    });
-
-    res.json({ message: "Record updated successfully", record: updatedRecord });
+    const record = await RecordService.update(id as string, validatedData);
+    return sendSuccess(res, "Record updated successfully", record);
   } catch (error: any) {
-    res.status(400).json({ message: "Update failed", error: error.message });
+    return sendError(res, "Update failed", error);
   }
 };
 
-// Delete record entry
+// Soft Delete record entry
 export const deleteRecord = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    await prisma.record.delete({
-      where: { id: id as string },
-    });
-
-    res.json({ message: "Record deleted successfully" });
+    await RecordService.softDelete(id as string);
+    return sendSuccess(res, "Record deleted successfully (Soft Deleted)");
   } catch (error: any) {
-    res.status(400).json({ message: "Delete failed", error: error.message });
+    return sendError(res, "Delete failed", error);
   }
 };

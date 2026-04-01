@@ -4,13 +4,22 @@ import session from "express-session";
 import pgSession from "connect-pg-simple";
 import authRoutes from "./routes/auth.routes.js";
 import recordRoutes from "./routes/record.routes.js";
+import dashboardRoutes from "./routes/dashboard.routes.js";
+import userRoutes from "./routes/user.routes.js";
 import { pool } from "./config/db.config.js";
 import prisma from "./config/prisma.js";
+import helmet from "helmet";
+import cors from "cors";
 
 const app = express();
 const PostgresStore = pgSession(session);
 
-// almost boiler plate code for standard express js app nothing complex
+// Security and utility Middlewares
+app.use(helmet());
+app.use(cors({
+  origin: true, // Allow all for assignment, but can be restricted
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -36,6 +45,17 @@ app.use(
 // Auth routes mount
 app.use("/api/auth", authRoutes);
 app.use("/api/records", recordRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/users", userRoutes);
+
+// Global Error Handler
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error(err.stack);
+  res.status(500).json({ 
+    message: "Something went wrong on the server!", 
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined 
+  });
+});
 
 const PORT = process.env.PORT || 3000;
 

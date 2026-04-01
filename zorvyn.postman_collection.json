@@ -224,6 +224,151 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "dashboard",
+      "item": [
+        {
+          "name": "get summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseurl}}/api/dashboard/summary",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "summary"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseurl}}/api/dashboard/categories?type=EXPENSE",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "categories"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "EXPENSE"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get trends",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseurl}}/api/dashboard/trends",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "trends"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get recent activity",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseurl}}/api/dashboard/recent",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "recent"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "users (admin)",
+      "item": [
+        {
+          "name": "get all users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseurl}}/api/users",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update user status",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"INACTIVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/users/:id/status",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                ":id",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "user_id_here"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "event": [
