@@ -76,9 +76,9 @@ app.use("/api/users", userRoutes);
 // Global Error Handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   logger.error(err.stack);
-  res.status(500).json({ 
-    message: "Something went wrong on the server!", 
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined 
+  res.status(500).json({
+    message: "Something went wrong on the server!",
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
 });
 
@@ -86,7 +86,7 @@ const PORT = process.env.PORT || 5009;
 
 // root 
 app.get("/", (req: express.Request, res: express.Response) => {
-  res.send(`welcome to backend server of Finance Data Processing and Access Control Backend assigemnt by amberbisht`);
+  res.send(`welcome to backend server of Finance Data Processing and Access Control Backend assigment by amberbisht`);
 });
 
 app.get("/health", (req: express.Request, res: express.Response) => {
