@@ -1,17 +1,21 @@
-# Zorvyn Finance Dashboard - Backend
+# Zorvyn Finance Dashboard - Advanced Backend
 
-A professional, secure, and scalable backend for a Finance Data Processing and Access Control system. Built with Node.js, Express, and Prisma, this project fulfills the requirements for the Backend Developer Internship assignment at Zorvyn FinTech.
+A professional, secure, and highly scalable backend for a Finance Data Processing and Access Control system. Built with Node.js, Express, and Prisma, this project significantly exceeds the core requirements for the Backend Developer Internship assignment at Zorvyn FinTech by incorporating production-grade architecture and DevOps infrastructure.
+
+---
 
 ## 🚀 Key Features
 
+- **Layered Architecture**: Strictly separated Controllers, Services, and Utilities for maximum maintainability.
 - **Robust Authentication**: Session-based authentication using `express-session` and PostgreSQL (Neon DB).
 - **Advanced RBAC**: Role-Based Access Control enforcing permissions for **Admin**, **Analyst**, and **Viewer**.
-- **Financial Record Management**: Full CRUD with **Soft Delete** functionality and filtering.
+- **Financial Record Management**: Full CRUD operations with **Soft Delete** functionality and filtering.
 - **Dashboard Analytics**: Real-time aggregation for Total Income, Expenses, Balance, and Category breakdowns.
-- **Data Pagination**: Efficient data fetching with `page` and `limit` support.
-- **Production-Ready Security**: Integrated with `helmet` for security headers and `cors` for cross-origin management.
-- **Strict Validation**: Type-safe input validation using **Zod**.
-- **Centralized Database**: Optimized PostgreSQL on Neon with explicit indexing for analytics performance.
+- **Data Pagination**: Efficient data fetching utilizing `page` and `limit` parameters.
+- **Production-Ready Security**: Integrated with `helmet` for security headers, `cors` for cross-origin management, and **Redis-backed Rate Limiting** to prevent abuse.
+- **Centralized Logging**: Configured with `winston` and `morgan` for robust observability.
+- **Automated CI/CD**: Fully tokenized GitHub Actions pipeline (`deploy.yml`) utilizing GitHub Container Registry (GHCR) for automated zero-downtime SSH deployments.
+- **Dockerized Infrastructure**: Complete setup with `Dockerfile` and `docker-compose.yml` orchestrating the backend and isolated internal Redis cache.
 
 ---
 
@@ -22,65 +26,56 @@ A professional, secure, and scalable backend for a Finance Data Processing and A
 - **ORM**: Prisma 7
 - **Database**: PostgreSQL (Neon DB)
 - **Validation**: Zod
+- **Caching & Rate Limiting**: Redis, `express-rate-limit`, `rate-limit-redis`
 - **Security**: bcryptjs, helmet, cors
-- **Session**: express-session, connect-pg-simple
+- **Session Management**: express-session, connect-pg-simple
+- **DevOps**: Docker, GitHub Actions, GHCR
 
 ---
 
-## 📂 Project Structure
+## 📂 Project Architecture
 
 ```text
-src/
-├── config/           # DB Connection, Prisma, and Session configs
-├── controllers/      # Business logic (Auth, Records, Dashboard, Users)
-├── middlewares/      # Auth & RBAC logic
-├── routes/           # API Endpoint definitions
-├── validators/       # Zod schemas for request validation
-└── index.ts          # Server entry point
+/
+├── .github/workflows/ # Action Scripts (GHCR Build & VPS Deploy)
+├── Dockerfile         # Node Build Stage instructions
+├── docker-compose.yml # Orchestrates Backend & isolated Redis
+├── src/
+│   ├── config/        # Environment logic (DB, Prisma, Redis, Session)
+│   ├── controllers/   # Lightweight HTTP request handlers
+│   ├── services/      # Core Business & Database querying logic
+│   ├── middlewares/   # Auth, Error & RBAC guards
+│   ├── routes/        # Express API endpoints
+│   ├── validators/    # Zod payload strict-schemas
+│   ├── utils/         # Winston Logger & Standardized API Payload formatters
+│   └── index.ts       # Application Root (Middlewares, Ports, Rate Limiters)
 ```
 
 ---
 
-## ⚡ Setup Instructions
+## ⚡ Setup Instructions (Local & Docker)
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd assignment
-   ```
+### 1. Environment variables
+Duplicate `.env.example` as `.env` and fill in the secrets.
 
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+### Option A: Local Run (Development)
+1. **Install dependencies**: `npm install`
+2. **Synchronize Schema**: `npx prisma db push`
+3. **Start the server**: `npm run dev` (Ensure a local Redis server is active on `6379`).
 
-3. **Configure Environment Variables**:
-   Create a `.env` file in the root with:
-   ```env
-   DATABASE_URL="your_postgresql_connection_string"
-   SESSION_SECRET="your_secure_secret_key"
-   PORT=3000
-   NODE_ENV="development"
-   ```
-
-4. **Synchronize Database**:
-   ```bash
-   npx prisma generate
-   npx prisma db push
-   ```
-
-5. **Start the server**:
-   ```bash
-   npm run dev
-   ```
+### Option B: Docker Run (Production)
+```bash
+docker compose up -d --build
+```
+This handles Prisma generation, builds the TypeScript code, and spins up an isolated Redis container natively.
 
 ---
 
 ## 📑 API Documentation
 
-The full API documentation is available via the included [**Postman Collection**](./zorvyn.postman_collection.json).
+The full working API suite details are available via the included [**Postman Collection**](./zorvyn.postman_collection.json).
 
-### Summary of Endpoints:
+### Summary of Core Endpoints:
 
 | Category | Endpoint | Method | Role Required |
 | :--- | :--- | :--- | :--- |
@@ -97,10 +92,10 @@ The full API documentation is available via the included [**Postman Collection**
 
 ## 🛡️ Security & Design Decisions
 
-- **Session vs JWT**: Session-based auth was chosen for better security in finance applications, allowing server-side session invalidation.
-- **Soft Delete**: Records are never permanently deleted from the DB; they are marked with an `isDeleted` flag to maintain audit trails.
-- **Database Indexing**: Explicit indexes were added to `type`, `date`, and `category` fields to ensure analytics queries remain fast as the dataset grows.
-- **Centralized Error Handling**: A global middleware handles all unexpected errors gracefully.
+- **Session vs JWT**: Session-based authentication maximizes safety for financial systems, permitting absolute server-side session invalidation.
+- **Service Layer Abstraction**: By separating business logic securely into `src/services`, the project supports high reusability and scalability.
+- **GHCR Build Architecture**: Prevents continuous VPS resource exhaustion by performing the exact build steps purely on GitHub Runner machines.
+- **Internal Redis Component**: The caching/spam-protection database intentionally omits host port maps, restricting network access entirely to the Docker ecosystem to avert conflicts.
 
 ---
 

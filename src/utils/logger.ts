@@ -18,14 +18,13 @@ export const logger = winston.createLogger({
     new winston.transports.File({ filename: "logs/error.log", level: "error" }),
     // Output all logs to combined file
     new winston.transports.File({ filename: "logs/combined.log" }),
+    // Always output to Console so Docker can capture stdout/stderr via 'docker logs'
+    new winston.transports.Console({
+      format: combine(
+        process.env.NODE_ENV !== "production" ? colorize() : winston.format.uncolorize(),
+        logFormat
+      ),
+    })
   ],
 });
 
-// If we're not in production then log to the console with colors
-if (process.env.NODE_ENV !== "production") {
-  logger.add(
-    new winston.transports.Console({
-      format: combine(colorize(), logFormat),
-    })
-  );
-}
