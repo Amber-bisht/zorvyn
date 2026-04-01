@@ -10,6 +10,11 @@ import { pool } from "./config/db.config.js";
 import prisma from "./config/prisma.js";
 import helmet from "helmet";
 import cors from "cors";
+import morgan from "morgan";
+import { logger } from "./utils/logger.js";
+import { rateLimit } from "express-rate-limit";
+import RedisStore from "rate-limit-redis";
+import { redisClient } from "./config/redis.config.js";
 
 const app = express();
 const PostgresStore = pgSession(session);
@@ -22,6 +27,26 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Winston & Morgan HTTP logging
+app.use(morgan("combined", {
+  stream: { write: (message) => logger.info(message.trim()) }
+}));
+
+// Redis Rate Limiting using centralized config
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes window
+  limit: 100, // 100 requests per window per IP
+  standardHeaders: "draft-7", // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  store: new RedisStore({
+    sendCommand: (...args: string[]) => redisClient.call(...args),
+  }),
+  message: { success: false, message: "Too many requests, please try again later." }
+});
+
+// Apply rate limiter to all API routes
+app.use("/api", apiLimiter);
 
 // Session : Neon DB 
 app.use(
@@ -50,14 +75,14 @@ app.use("/api/users", userRoutes);
 
 // Global Error Handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error(err.stack);
+  logger.error(err.stack);
   res.status(500).json({ 
     message: "Something went wrong on the server!", 
     error: process.env.NODE_ENV === 'development' ? err.message : undefined 
   });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5009;
 
 // root 
 app.get("/", (req: express.Request, res: express.Response) => {
@@ -69,7 +94,7 @@ app.get("/health", (req: express.Request, res: express.Response) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT} , btw I am Amber`);
+  logger.info(`Server is running on port ${PORT} , btw I am Amber`);
 });
 
 export default app;

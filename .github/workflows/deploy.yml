@@ -1,0 +1,38 @@
+name: Deploy Backend to VPS Using Docker
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploying via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          # Fallback to password if VPS_KEY isn't there
+          key: ${{ secrets.VPS_KEY }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            # Navigate to the assignment folder (change the path as necessary)
+            cd ~/assignment || mkdir -p ~/assignment && cd ~/assignment
+            
+            # Since git pull might require cloning initially, this assumes we are updating an existing cloned repo
+            if [ -d ".git" ]; then
+              git pull origin main
+            else
+              # If for some reason it's an empty folder, this falls back. Change the URL to yours!
+              git clone https://github.com/Amber-bisht/Zorvyn-Assignment.git .
+            fi
+
+            # Using PROD_ENV secret to generate production .env file
+            echo "${{ secrets.PROD_ENV }}" > .env
+            
+            # Restart docker containers detached mode, forcing build
+            docker compose down
+            docker compose up -d --build
