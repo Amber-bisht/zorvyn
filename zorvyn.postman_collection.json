@@ -105,6 +105,125 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "records",
+      "item": [
+        {
+          "name": "get records",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseurl}}/api/records?category=Salary&type=INCOME",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "records"
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "Salary"
+                },
+                {
+                  "key": "type",
+                  "value": "INCOME"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create record",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"amount\": 50000,\n    \"type\": \"INCOME\",\n    \"category\": \"Salary\",\n    \"description\": \"April Month Salary\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/records",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "records"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update record",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"amount\": 55000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseurl}}/api/records/:id",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "records",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "record_id_here"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete record",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseurl}}/api/records/:id",
+              "host": [
+                "{{baseurl}}"
+              ],
+              "path": [
+                "api",
+                "records",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "record_id_here"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "event": [
