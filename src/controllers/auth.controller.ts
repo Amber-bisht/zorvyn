@@ -32,6 +32,10 @@ export const login = async (req: Request, res: Response) => {
       return sendError(res, "Invalid email or password!", null, 401);
     }
 
+    if (user.status === "INACTIVE") {
+      return sendError(res, "Account deactivated. Please contact support.", null, 403);
+    }
+
     const isPasswordValid = await AuthService.verifyPassword(password, user.passwordHash);
     if (!isPasswordValid) {
       return sendError(res, "Invalid email or password!", null, 401);

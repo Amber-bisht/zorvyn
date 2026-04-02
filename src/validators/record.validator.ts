@@ -11,3 +11,15 @@ export const recordSchema = z.object({
 
 // Update Record Schema (Partial because not everything needs to be updated)
 export const updateRecordSchema = recordSchema.partial();
+
+// Query Schema for GET /api/records
+export const querySchema = z.object({
+  type: z.enum(["INCOME", "EXPENSE"]).optional(),
+  category: z.string().optional(),
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().optional(),
+  sortBy: z.enum(["amount", "date", "category", "type"]).optional(),
+  order: z.enum(["asc", "desc"]).optional(),
+  page: z.preprocess((val) => Number(val), z.number().min(1).default(1)),
+  limit: z.preprocess((val) => Number(val), z.number().min(1).max(100).default(10)),
+});

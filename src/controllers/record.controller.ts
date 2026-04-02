@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { RecordService } from "../services/record.service.js";
-import { recordSchema, updateRecordSchema } from "../validators/record.validator.js";
+import { recordSchema, updateRecordSchema, querySchema } from "../validators/record.validator.js";
 import { sendSuccess, sendError } from "../utils/apiResponse.js";
 import { RecordType } from "@prisma/client";
 
@@ -9,25 +9,25 @@ import { RecordType } from "@prisma/client";
 // Get all records (with filtering and pagination)
 export const getRecords = async (req: Request, res: Response) => {
   try {
-    const { type, category, startDate, endDate, sortBy, order, page = 1, limit = 10 } = req.query;
+    const validatedQuery = querySchema.parse(req.query);
 
     const result = await RecordService.getAll({
-      type: type as RecordType,
-      category: category as string,
-      startDate: startDate as string,
-      endDate: endDate as string,
-      sortBy: sortBy as string,
-      order: order as "asc" | "desc",
-      page: Number(page),
-      limit: Number(limit),
+      type: validatedQuery.type as RecordType,
+      category: validatedQuery.category,
+      startDate: validatedQuery.startDate,
+      endDate: validatedQuery.endDate,
+      sortBy: validatedQuery.sortBy,
+      order: validatedQuery.order,
+      page: validatedQuery.page,
+      limit: validatedQuery.limit,
     });
 
     return sendSuccess(res, "Records fetched successfully", {
       meta: {
         total: result.total,
-        page: Number(page),
-        limit: Number(limit),
-        totalPages: Math.ceil(result.total / Number(limit)),
+        page: validatedQuery.page,
+        limit: validatedQuery.limit,
+        totalPages: Math.ceil(result.total / validatedQuery.limit),
       },
       data: result.records,
     });
@@ -44,6 +44,7 @@ export const createRecord = async (req: Request, res: Response) => {
 
     const record = await RecordService.create({
       ...validatedData,
+      category: validatedData.category.toLowerCase(),
       type: validatedData.type as RecordType,
       userId,
     });
