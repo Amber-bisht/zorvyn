@@ -6,6 +6,8 @@ import {
   getRecentActivity
 } from "../controllers/dashboard.controller.js";
 import { isAuthenticated } from "../middlewares/auth.middleware.js";
+import { checkRole } from "../middlewares/role.middleware.js";
+import { UserRole } from "@prisma/client";
 
 const router = express.Router();
 
@@ -14,6 +16,6 @@ const router = express.Router();
 router.get("/summary", isAuthenticated, getSummary);
 router.get("/categories", isAuthenticated, getCategoryBreakdown);
 router.get("/trends", isAuthenticated, getMonthlyTrends);
-router.get("/recent", isAuthenticated, getRecentActivity);
+router.get("/recent", isAuthenticated, checkRole([UserRole.ADMIN, UserRole.ANALYST]), getRecentActivity);
 
 export default router;
