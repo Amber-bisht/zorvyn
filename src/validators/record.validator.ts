@@ -20,6 +20,6 @@ export const querySchema = z.object({
   endDate: z.string().datetime().optional(),
   sortBy: z.enum(["amount", "date", "category", "type"]).optional(),
   order: z.enum(["asc", "desc"]).optional(),
-  page: z.preprocess((val) => Number(val), z.number().min(1).default(1)),
-  limit: z.preprocess((val) => Number(val), z.number().min(1).max(100).default(10)),
+  page: z.preprocess((val) => (val === undefined ? undefined : Number(val)), z.number().min(1).default(1)),
+  limit: z.preprocess((val) => (val === undefined ? undefined : Number(val)), z.number().min(1).max(100).default(10)),
 });
