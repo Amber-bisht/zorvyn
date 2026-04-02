@@ -15,7 +15,7 @@ export const updateRecordSchema = recordSchema.partial();
 // Query Schema for GET /api/records
 export const querySchema = z.object({
   type: z.enum(["INCOME", "EXPENSE"]).optional(),
-  category: z.string().optional(),
+  category: z.string().optional().transform(val => val?.toLowerCase()),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
   sortBy: z.enum(["amount", "date", "category", "type"]).optional(),
