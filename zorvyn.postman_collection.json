@@ -115,7 +115,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseurl}}/api/records?category=Salary&type=INCOME",
+              "raw": "{{baseurl}}/api/records?category=salary&type=INCOME&page=1&limit=10",
               "host": [
                 "{{baseurl}}"
               ],
@@ -126,11 +126,19 @@
               "query": [
                 {
                   "key": "category",
-                  "value": "Salary"
+                  "value": "salary"
                 },
                 {
                   "key": "type",
                   "value": "INCOME"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
                 }
               ]
             }
