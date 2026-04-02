@@ -5,15 +5,15 @@ import { RecordType } from "@prisma/client";
 
 export class DashboardService {
   // Get Summary (Totals and Balance)
-  static async getSummary(userId: string) {
+  static async getSummary() {
     const [income, expense] = await Promise.all([
       prisma.record.aggregate({
         _sum: { amount: true },
-        where: { type: "INCOME", isDeleted: false, userId },
+        where: { type: "INCOME", isDeleted: false },
       }),
       prisma.record.aggregate({
         _sum: { amount: true },
-        where: { type: "EXPENSE", isDeleted: false, userId },
+        where: { type: "EXPENSE", isDeleted: false },
       }),
     ]);
 
@@ -28,13 +28,12 @@ export class DashboardService {
   }
 
   // Get Breakdown by Category
-  static async getCategoryBreakdown(userId: string, type?: RecordType) {
+  static async getCategoryBreakdown(type?: RecordType) {
     return prisma.record.groupBy({
       by: ["category"],
       _sum: { amount: true },
       where: {
         isDeleted: false,
-        userId,
         ...(type ? { type } : {}),
       },
       orderBy: {
@@ -44,12 +43,11 @@ export class DashboardService {
   }
 
   // Monthly trends (Simplified)
-  static async getMonthlyTrends(userId: string) {
+  static async getMonthlyTrends() {
     const currentYear = new Date().getFullYear();
     const records = await prisma.record.findMany({
       where: {
         isDeleted: false,
-        userId,
         date: {
           gte: new Date(`${currentYear}-01-01`),
           lte: new Date(`${currentYear}-12-31`),
@@ -72,9 +70,9 @@ export class DashboardService {
   }
 
   // Recent Activity
-  static async getRecentActivity(userId: string, limit: number = 5) {
+  static async getRecentActivity(limit: number = 5) {
     return prisma.record.findMany({
-      where: { isDeleted: false, userId },
+      where: { isDeleted: false },
       take: limit,
       orderBy: { date: "desc" },
       include: { user: { select: { name: true, email: true } } }
